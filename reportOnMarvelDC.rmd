@@ -1,0 +1,127 @@
+---
+title: "Report on Marvel vs. DC"
+output: html_document
+author: Kaya Lee | The Pingry School | klee2020@pingry.org
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+# reading CSVs
+library(plyr)
+library(dplyr)
+theUrl = "/Users/Kaya/Desktop/Senior/UChicago/marvelOrDC.csv"
+marvelOrDC = read.csv( file = theUrl, header = TRUE)
+library(ggplot2)
+library(knitr)
+library(png)
+library(RColorBrewer)
+library(formattable)
+```
+
+```{r marvelOrDC}
+# based on age group, gender breakdown
+gendercounts = c(sum(marvelOrDC$Gender == "Female"), sum(marvelOrDC$Gender == "Male"))
+gender = c("Female", "Male")
+names(gendercounts) = gender
+#gender counts
+
+agegroups = c("13-18", "19-24", "25-34", "35-44", "45-54", "55-64")
+ageGroupCounts = c(sum(marvelOrDC$Age.Group == "13-18"), sum(marvelOrDC$Age.Group == "19-24"), sum(marvelOrDC$Age.Group == "25-34"), sum(marvelOrDC$Age.Group == "35-44"), sum(marvelOrDC$Age.Group == "45-54"), sum(marvelOrDC$Age.Group == "55-64"))
+genderCountsFemale = c(sum(marvelOrDC$Age.Group == "13-18" & marvelOrDC$Gender == "Female"), sum(marvelOrDC$Age.Group == "19-24" & marvelOrDC$Gender == "Female"), sum(marvelOrDC$Age.Group == "25-34" & marvelOrDC$Gender == "Female"), sum(marvelOrDC$Age.Group == "35-44" & marvelOrDC$Gender == "Female"), sum(marvelOrDC$Age.Group == "45-54" & marvelOrDC$Gender == "Female"), sum(marvelOrDC$Age.Group == "55-64" & marvelOrDC$Gender == "Female"))
+genderCountsMale = ageGroupCounts - genderCountsFemale
+
+names(ageGroupCounts) = agegroups
+
+## marvel vs. dc quanitities
+marvelDCCount = c(sum(marvelOrDC$Marvel.or.DC == "Marvel"), sum(marvelOrDC$Marvel.or.DC == "DC"), sum(marvelOrDC$Marvel.or.DC == "No preference"), sum(marvelOrDC$Marvel.or.DC == "I enjoy both equally"))
+preferences = c("Marvel", "DC", "No preference", "Enjoy both equally")
+marvelDCPreference = data.frame(group = preferences, value = marvelDCCount)
+piepercent = round(100*marvelDCCount/sum(marvelDCCount), 1)
+
+## percents per age group of marvel vs. dc preference
+marvelAgeGroups = c(sum(marvelOrDC$Marvel.or.DC == "Marvel" & marvelOrDC$Age.Group == "13-18"), sum(marvelOrDC$Marvel.or.DC == "Marvel" & marvelOrDC$Age.Group == "19-24"), sum(marvelOrDC$Marvel.or.DC == "Marvel" & marvelOrDC$Age.Group == "25-34"), sum(marvelOrDC$Marvel.or.DC == "Marvel" & marvelOrDC$Age.Group == "35-44"), sum(marvelOrDC$Marvel.or.DC == "Marvel" & marvelOrDC$Age.Group == "45-54"), sum(marvelOrDC$Marvel.or.DC == "Marvel" & marvelOrDC$Age.Group == "55-64"))
+
+DCAgeGroups = c(sum(marvelOrDC$Marvel.or.DC == "DC" & marvelOrDC$Age.Group == "13-18"), sum(marvelOrDC$Marvel.or.DC == "DC" & marvelOrDC$Age.Group == "19-24"), sum(marvelOrDC$Marvel.or.DC == "DC" & marvelOrDC$Age.Group == "25-34"), sum(marvelOrDC$Marvel.or.DC == "DC" & marvelOrDC$Age.Group == "35-44"), sum(marvelOrDC$Marvel.or.DC == "DC" & marvelOrDC$Age.Group == "45-54"), sum(marvelOrDC$Marvel.or.DC == "DC" & marvelOrDC$Age.Group == "55-64"))
+
+noPreferenceAgeGroups = c(sum(marvelOrDC$Marvel.or.DC == "No preference" & marvelOrDC$Age.Group == "13-18"), sum(marvelOrDC$Marvel.or.DC == "No preference" & marvelOrDC$Age.Group == "19-24"), sum(marvelOrDC$Marvel.or.DC == "No preference" & marvelOrDC$Age.Group == "25-34"), sum(marvelOrDC$Marvel.or.DC == "No preference" & marvelOrDC$Age.Group == "35-44"), sum(marvelOrDC$Marvel.or.DC == "No preference" & marvelOrDC$Age.Group == "45-54"), sum(marvelOrDC$Marvel.or.DC == "No preference" & marvelOrDC$Age.Group == "55-64"))
+
+equalAgeGroups = c(sum(marvelOrDC$Marvel.or.DC == "I enjoy both equally" & marvelOrDC$Age.Group == "13-18"), sum(marvelOrDC$Marvel.or.DC == "I enjoy both equally" & marvelOrDC$Age.Group == "19-24"), sum(marvelOrDC$Marvel.or.DC == "I enjoy both equally" & marvelOrDC$Age.Group == "25-34"), sum(marvelOrDC$Marvel.or.DC == "I enjoy both equally" & marvelOrDC$Age.Group == "35-44"), sum(marvelOrDC$Marvel.or.DC == "I enjoy both equally" & marvelOrDC$Age.Group == "45-54"), sum(marvelOrDC$Marvel.or.DC == "I enjoy both equally" & marvelOrDC$Age.Group == "55-64"))
+
+## reasons breakdown per preference
+reasonsMarvel = c(sum(marvelOrDC$Actors == "Marvel"), sum(marvelOrDC$Superheroes == "Marvel"), sum(marvelOrDC$Superpowers == "Marvel"), sum(marvelOrDC$Relatability == "Marvel"), sum(marvelOrDC$Entertainment.factor == "Marvel"), sum(marvelOrDC$Humor == "Marvel"), sum(marvelOrDC$Quality.of.films == "Marvel"), sum(marvelOrDC$Nostalgia.factor == "Marvel"), sum(marvelOrDC$Themes == "Marvel"))
+
+reasonsDC = c(sum(marvelOrDC$Actors == "DC"), sum(marvelOrDC$Superheroes == "DC"), sum(marvelOrDC$Superpowers == "DC"), sum(marvelOrDC$Relatability == "DC"), sum(marvelOrDC$Entertainment.factor == "DC"), sum(marvelOrDC$Humor == "DC"), sum(marvelOrDC$Quality.of.films == "DC"), sum(marvelOrDC$Nostalgia.factor == "DC"), sum(marvelOrDC$Themes == "DC"))
+
+## reasons breakdown per preference age group 13-18
+marvelOrDCThirteen = subset(marvelOrDC, Age.Group == "13-18")
+
+reasonsMarvelThirteen = c(sum(marvelOrDCThirteen$Actors == "Marvel"), sum(marvelOrDCThirteen$Superheroes == "Marvel"), sum(marvelOrDCThirteen$Superpowers == "Marvel"), sum(marvelOrDCThirteen$Relatability == "Marvel"), sum(marvelOrDCThirteen$Entertainment.factor == "Marvel"), sum(marvelOrDCThirteen$Humor == "Marvel"), sum(marvelOrDCThirteen$Quality.of.films == "Marvel"), sum(marvelOrDCThirteen$Nostalgia.factor == "Marvel"), sum(marvelOrDCThirteen$Themes == "Marvel"))
+
+reasonsDCThirteen = c(sum(marvelOrDCThirteen$Actors == "DC"), sum(marvelOrDCThirteen$Superheroes == "DC"), sum(marvelOrDCThirteen$Superpowers == "DC"), sum(marvelOrDCThirteen$Relatability == "DC"), sum(marvelOrDCThirteen$Entertainment.factor == "DC"), sum(marvelOrDCThirteen$Humor == "DC"), sum(marvelOrDCThirteen$Quality.of.films == "DC"), sum(marvelOrDCThirteen$Nostalgia.factor == "DC"), sum(marvelOrDCThirteen$Themes == "DC"))
+
+reasons = c("Actors", "Superheroes", "Superpowers", "Relatability", "Entertainment", "Humor", "Film Quality", "Nostalgia", "Themes")
+
+marvelLoyalty = subset(marvelOrDC, marvelOrDC$Marvel.or.DC == "Marvel" & marvelOrDC$Actors == "Marvel" & marvelOrDC$Superheroes == "Marvel" & marvelOrDC$Superpowers == "Marvel" & marvelOrDC$Relatability == "Marvel" & marvelOrDC$Entertainment.factor == "Marvel" & marvelOrDC$Humor == "Marvel" & marvelOrDC$Quality.of.films == "Marvel" & marvelOrDC$Nostalgia.factor == "Marvel" & marvelOrDC$Themes == "Marvel")
+MarvelLoyaltyNum = nrow(marvelLoyalty)
+
+marvelTotal = marvelDCCount[1]
+
+
+
+DCLoyalty = subset(marvelOrDC, marvelOrDC$Marvel.or.DC == "DC" & marvelOrDC$Actors == "DC" & marvelOrDC$Superheroes == "DC" & marvelOrDC$Superpowers == "DC" & marvelOrDC$Relatability == "DC" & marvelOrDC$Entertainment.factor == "DC" & marvelOrDC$Humor == "DC" & marvelOrDC$Quality.of.films == "DC" & marvelOrDC$Nostalgia.factor == "DC" & marvelOrDC$Themes == "DC")
+DCLoyaltyNum = nrow(DCLoyalty)
+
+DCTotal = marvelDCCount[2]
+
+loyalty = data.frame("Franchise" = c("Marvel", "DC"), "Num of Loyal Fans" = c(MarvelLoyaltyNum, DCLoyaltyNum), "Num of Total Fans" = c(marvelTotal, DCTotal), "Percentage" = c(100 * (MarvelLoyaltyNum/marvelTotal), 100 * (DCLoyaltyNum/DCTotal)))
+
+entertainmentDC = c(sum(marvelOrDC$Marvel.or.DC == "DC" & marvelOrDC$Entertainment.factor == "DC"))
+entertainmentMarvel = c(sum(marvelOrDC$Marvel.or.DC == "Marvel" & marvelOrDC$Entertainment.factor == "DC"))
+
+```
+
+```{r, out.width = "50%", fig.pos="h", ECHO = FALSE, message = FALSE , figure.keep = "all"}
+## color palletes
+col1 = c("lightcoral", "lightsteelblue1")
+col2 = c("lightcoral", "lightsteelblue1", "lightslategrey", "plum3")
+col4 = c("gray65", "lavenderblush2")
+  
+##gender plot
+genders <- c("Male","Female")
+
+matrixGenders <- matrix(c(genderCountsMale, genderCountsFemale), nrow = 2, ncol = 6, byrow = TRUE)
+
+barplot(matrixGenders, main = "Quantity of Males and Females per Age Group", names.arg = agegroups, xlab = "Age Groups", ylab = "Quantity of Females and Males", col = col4, beside = TRUE, ylim = range(pretty(c(0, matrixGenders))))
+legend("topright", genders, cex = 1.3, fill = col4)
+
+##breakdown preferences per age group
+matrixPreferences <- matrix(c(marvelAgeGroups, DCAgeGroups, noPreferenceAgeGroups, equalAgeGroups), nrow = 4, ncol = 6, byrow = TRUE)
+
+x =barplot(matrixPreferences, main = "Breakdown of Preferences per Age Group", names.arg = agegroups, xlab = "Age Groups", ylab = "Quantity of Responses", col = col2, beside = TRUE, ylim = range(pretty(c(0, matrixPreferences))))
+legend("topright", preferences, cex = 1.3, fill = col2)
+y = as.matrix(matrixPreferences)
+text(x, y+2, labels=as.character(y))
+
+## reasons breakdown
+matrixReasons = matrix(c(reasonsMarvel, reasonsDC), nrow= 2, ncol = 9, byrow = TRUE)
+barplot(matrixReasons, main = "Which Franchise Does it Better?",cex.names = 0.8, las = 2, names.arg = reasons, xlab = "", ylab = "Quantity of Responses", col = col1, beside = TRUE, ylim = range(pretty(c(0, matrixReasons))))
+legend("topright", c("Marvel", "DC"), cex = 0.8, fill = col1)
+mtext("Reasons", side = 3)
+
+
+## reasons breakdown 13-18
+matrixReasonsThirteen = matrix(c(reasonsMarvelThirteen, reasonsDCThirteen), nrow = 2, ncol = 9, byrow = TRUE)
+barplot(matrixReasonsThirteen, xlab = "", main = "Which Franchise Does it Better According to 13-18 Year Olds", las = 2, names.arg = reasons, col = col1, beside = TRUE, cex.names = 0.8, ylim = range(pretty(c(0, matrixReasonsThirteen))))
+legend("topright", c("Marvel", "DC"), cex = 0.8, fill = col1)
+mtext("Reasons", side = 3)
+
+## pie chart percentages
+pie(marvelDCCount, labels = piepercent, main = "Percentages of Marvel vs. DC Preferences", col = col2) 
+legend("topright", preferences, cex = 0.8, fill = col2)
+
+## loyalty table
+formattable(loyalty)
+                                                                                                                                        
+```
+
+
